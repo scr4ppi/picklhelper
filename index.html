@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lockpicking Solver</title>
+  <style>
+    :root {
+      --bg: #101010;
+      --bg-soft: #171717;
+      --card: #202020;
+      --card-2: #262626;
+      --text: #f2eee7;
+      --muted: #aaa196;
+      --line: #3a342e;
+      --accent: #c7924b;
+      --accent-2: #f0c06a;
+      --danger: #d66a5c;
+      --success: #7cc47f;
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(199, 146, 75, 0.18), transparent 35%),
+        linear-gradient(180deg, #0b0b0b, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .page {
+      width: min(1100px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0 70px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      color: var(--accent-2);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 5vw, 58px);
+      line-height: 1;
+    }
+
+    header p {
+      color: var(--muted);
+      max-width: 720px;
+      margin: 18px auto 0;
+      line-height: 1.6;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.015)), var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 22px 24px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.16);
+    }
+
+    .card-header h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    .card-header p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    .section {
+      margin-bottom: 28px;
+    }
+
+    .section:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .section-title h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 8px 0 0;
+    }
+
+    .module-count {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button,
+    select {
+      font: inherit;
+    }
+
+    .count-btn,
+    .action-btn,
+    .small-btn {
+      border: 1px solid var(--line);
+      background: var(--card-2);
+      color: var(--text);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: 0.16s ease;
+    }
+
+    .count-btn {
+      width: 46px;
+      height: 42px;
+      font-weight: 700;
+    }
+
+    .count-btn:hover,
+    .small-btn:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .count-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #111;
+    }
+
+    .pin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+    }
+
+    .pin-box {
+      background: rgba(0, 0, 0, 0.18);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .pin-box label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    select {
+      width: 100%;
+      background: #141414;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 11px;
+      outline: none;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+    }
+
+    .rules {
+      display: grid;
+      gap: 16px;
+    }
+
+    .rule-card {
+      background: rgba(0, 0, 0, 0.18);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .rule-card h4 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      color: var(--accent-2);
+    }
+
+    .rule-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+    }
+
+    .effect {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .effect label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .self-note {
+      background: rgba(199, 146, 75, 0.10);
+      border: 1px solid rgba(199, 146, 75, 0.35);
+      color: var(--accent-2);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .action-btn {
+      padding: 12px 18px;
+      font-weight: 700;
+    }
+
+    .action-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #121212;
+    }
+
+    .action-btn.primary:hover {
+      background: var(--accent-2);
+      border-color: var(--accent-2);
+    }
+
+    .action-btn.secondary:hover {
+      border-color: var(--accent);
+    }
+
+    .small-btn {
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+
+    .result {
+      background: #111;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      min-height: 130px;
+    }
+
+    .status {
+      margin: 0 0 12px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .status.success {
+      color: var(--success);
+    }
+
+    .status.danger {
+      color: var(--danger);
+    }
+
+    .steps-list {
+      margin: 0;
+      padding-left: 22px;
+      line-height: 1.75;
+    }
+
+    .state-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 18px;
+      font-size: 14px;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    .state-table th,
+    .state-table td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+    }
+
+    .state-table th {
+      color: var(--accent-2);
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .state-table td {
+      color: var(--muted);
+    }
+
+    .target {
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    details {
+      background: rgba(0, 0, 0, 0.16);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+
+    summary {
+      cursor: pointer;
+      color: var(--accent-2);
+      font-weight: 700;
+    }
+
+    details p {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 20px, 1100px);
+        padding-top: 28px;
+      }
+
+      .card-body,
+      .card-header {
+        padding: 18px;
+      }
+
+      .section-title {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .action-btn {
+        width: 100%;
+      }
+
+      .state-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <div class="eyebrow">Lockpicking Tool</div>
+      <h1>Lockpicking Solver</h1>
+      <p>
+        Stelle ein, wie viele Module dein Schloss hat, wo die Pins am Anfang stehen
+        und welche Scheiben sich gegenseitig bewegen. Ziel: Alle Pins müssen auf Position 4.
+        Wichtig: Links erhöht die Positionsnummer bis 7, rechts senkt sie bis 1.
+      </p>
+    </header>
+
+    <div class="layout">
+      <section class="card">
+        <div class="card-header">
+          <h2>Schloss konfigurieren</h2>
+          <p>
+            Positionen laufen von 1 bis 7. Die Mitte ist Position 4.
+            Nach links bewegt Richtung 7, nach rechts Richtung 1. Eine Bewegung außerhalb von 1–7 wird als ungültig behandelt.
+          </p>
+        </div>
+
+        <div class="card-body">
+          <div class="section">
+            <div class="section-title">
+              <h3>1. Anzahl der Module</h3>
+            </div>
+            <div id="moduleCountButtons" class="module-count"></div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">
+              <h3>2. Startpositionen der Pins</h3>
+              <button class="small-btn" type="button" id="setRandomBtn">Zufällig</button>
+            </div>
+            <div id="pinInputs" class="pin-grid"></div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">
+              <h3>3. Bewegungsregeln</h3>
+              <button class="small-btn" type="button" id="resetRulesBtn">Regeln zurücksetzen</button>
+            </div>
+            <p class="hint">
+              Die Regel beschreibt immer: „Wenn ich diese Scheibe nach links bewege, was passiert mit den anderen Scheiben?“
+              Nach links bedeutet Richtung 7. Nach rechts bedeutet Richtung 1 und wird automatisch umgekehrt.
+            </p>
+            <div id="rules" class="rules"></div>
+          </div>
+
+          <div class="actions">
+            <button class="action-btn primary" type="button" id="solveBtn">Lösung berechnen</button>
+            <button class="action-btn secondary" type="button" id="resetAllBtn">Alles zurücksetzen</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Ergebnis</h2>
+          <p>
+            Der Solver sucht die kürzeste gültige Bewegungsfolge. Direkt gleiche Schritte hintereinander werden zusammengefasst.
+          </p>
+        </div>
+
+        <div class="card-body">
+          <div id="result" class="result">
+            <p class="status">Noch keine Berechnung gestartet.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Hinweis zur Logik</h2>
+          <p>
+            Diese Datei ist komplett eigenständig. Du kannst sie als <strong>index.html</strong> speichern und direkt im Browser öffnen.
+          </p>
+        </div>
+
+        <div class="card-body">
+          <details>
+            <summary>Wie werden die Regeln interpretiert?</summary>
+            <p>
+              Beispiel: Bei „Scheibe 1 nach links“ stellst du ein, dass Scheibe 2 ebenfalls nach links geht
+              und Scheibe 3 nach rechts. Dann passiert beim Drücken von Scheibe 1 nach links genau das.
+              Drückst du Scheibe 1 nach rechts, wird alles umgekehrt.
+            </p>
+          </details>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const MIN_POSITION = 1;
+    const MAX_POSITION = 7;
+    const TARGET_POSITION = 4;
+
+    /*
+      Positionslogik:
+      - nach links  = +1 Richtung 7
+      - nach rechts = -1 Richtung 1
+      - 7 nach links ist ungültig
+      - 1 nach rechts ist ungültig
+      - wenn ein gekoppelter Pin über 1/7 hinausgehen würde, ist der ganze Zug ungültig
+    */
+
+    let moduleCount = 4;
+    let startPositions = [];
+    let leftRules = [];
+
+    const moduleCountButtons = document.getElementById("moduleCountButtons");
+    const pinInputs = document.getElementById("pinInputs");
+    const rulesContainer = document.getElementById("rules");
+    const result = document.getElementById("result");
+
+    const solveBtn = document.getElementById("solveBtn");
+    const resetAllBtn = document.getElementById("resetAllBtn");
+    const resetRulesBtn = document.getElementById("resetRulesBtn");
+    const setRandomBtn = document.getElementById("setRandomBtn");
+
+    function init() {
+      renderModuleCountButtons();
+      resetState();
+      bindEvents();
+    }
+
+    function bindEvents() {
+      solveBtn.addEventListener("click", handleSolve);
+      resetAllBtn.addEventListener("click", () => {
+        resetState();
+        renderResultInfo("Alles wurde zurückgesetzt.");
+      });
+      resetRulesBtn.addEventListener("click", () => {
+        resetRules();
+        renderRules();
+        renderResultInfo("Die Bewegungsregeln wurden zurückgesetzt.");
+      });
+      setRandomBtn.addEventListener("click", () => {
+        startPositions = startPositions.map(() => randomInt(MIN_POSITION, MAX_POSITION));
+        renderPinInputs();
+        renderResultInfo("Neue zufällige Startpositionen wurden gesetzt.");
+      });
+    }
+
+    function resetState() {
+      startPositions = Array(moduleCount).fill(TARGET_POSITION);
+      resetRules();
+      renderModuleCountButtons();
+      renderPinInputs();
+      renderRules();
+    }
+
+    function resetRules() {
+      leftRules = Array.from({ length: moduleCount }, (_, rowIndex) => {
+        return Array.from({ length: moduleCount }, (_, colIndex) => {
+          return rowIndex === colIndex ? 1 : 0;
+        });
+      });
+    }
+
+    function renderModuleCountButtons() {
+      moduleCountButtons.innerHTML = "";
+
+      for (let count = 1; count <= 7; count++) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "count-btn" + (count === moduleCount ? " active" : "");
+        button.textContent = count;
+
+        button.addEventListener("click", () => {
+          moduleCount = count;
+          resetState();
+          renderResultInfo(`Schloss auf ${count} Modul${count === 1 ? "" : "e"} gesetzt.`);
+        });
+
+        moduleCountButtons.appendChild(button);
+      }
+    }
+
+    function renderPinInputs() {
+      pinInputs.innerHTML = "";
+
+      for (let index = 0; index < moduleCount; index++) {
+        const box = document.createElement("div");
+        box.className = "pin-box";
+
+        const label = document.createElement("label");
+        label.textContent = `Modul ${index + 1}`;
+
+        const select = document.createElement("select");
+
+        for (let position = MIN_POSITION; position <= MAX_POSITION; position++) {
+          const option = document.createElement("option");
+          option.value = position;
+          option.textContent = position === TARGET_POSITION
+            ? `${position} - Ziel/Mitte`
+            : String(position);
+          select.appendChild(option);
+        }
+
+        select.value = String(startPositions[index]);
+
+        select.addEventListener("change", () => {
+          startPositions[index] = Number(select.value);
+        });
+
+        box.appendChild(label);
+        box.appendChild(select);
+        pinInputs.appendChild(box);
+      }
+    }
+
+    function renderRules() {
+      rulesContainer.innerHTML = "";
+
+      for (let sourceIndex = 0; sourceIndex < moduleCount; sourceIndex++) {
+        const card = document.createElement("div");
+        card.className = "rule-card";
+
+        const title = document.createElement("h4");
+        title.textContent = `Wenn ich Scheibe ${sourceIndex + 1} nach links bewege`;
+        card.appendChild(title);
+
+        const grid = document.createElement("div");
+        grid.className = "rule-grid";
+
+        for (let targetIndex = 0; targetIndex < moduleCount; targetIndex++) {
+          const wrapper = document.createElement("div");
+          wrapper.className = "effect";
+
+          const label = document.createElement("label");
+          label.textContent = `Scheibe ${targetIndex + 1}`;
+
+          if (sourceIndex === targetIndex) {
+            const note = document.createElement("div");
+            note.className = "self-note";
+            note.textContent = "bewegt sich selbst nach links / Richtung 7";
+            wrapper.appendChild(label);
+            wrapper.appendChild(note);
+          } else {
+            const select = document.createElement("select");
+
+            const options = [
+              { value: 0, text: "bewegt sich nicht" },
+              { value: 1, text: "bewegt sich nach links / Richtung 7" },
+              { value: -1, text: "bewegt sich nach rechts / Richtung 1" }
+            ];
+
+            for (const entry of options) {
+              const option = document.createElement("option");
+              option.value = entry.value;
+              option.textContent = entry.text;
+              select.appendChild(option);
+            }
+
+            select.value = String(leftRules[sourceIndex][targetIndex]);
+
+            select.addEventListener("change", () => {
+              leftRules[sourceIndex][targetIndex] = Number(select.value);
+            });
+
+            wrapper.appendChild(label);
+            wrapper.appendChild(select);
+          }
+
+          grid.appendChild(wrapper);
+        }
+
+        card.appendChild(grid);
+        rulesContainer.appendChild(card);
+      }
+    }
+
+    function handleSolve() {
+      const solution = solveLock({
+        startPositions,
+        leftRules,
+        minPosition: MIN_POSITION,
+        maxPosition: MAX_POSITION,
+        targetPosition: TARGET_POSITION
+      });
+
+      renderSolution(solution);
+    }
+
+    function solveLock({
+      startPositions,
+      leftRules,
+      minPosition,
+      maxPosition,
+      targetPosition
+    }) {
+      const count = startPositions.length;
+      const target = Array(count).fill(targetPosition);
+      const startKey = startPositions.join(",");
+      const targetKey = target.join(",");
+
+      if (startKey === targetKey) {
+        return {
+          solved: true,
+          moves: [],
+          states: [startPositions]
+        };
+      }
+
+      const queue = [startPositions];
+      let queueIndex = 0;
+
+      const visited = new Set([startKey]);
+      const parent = new Map();
+
+      while (queueIndex < queue.length) {
+        const current = queue[queueIndex];
+        queueIndex++;
+
+        for (let moduleIndex = 0; moduleIndex < count; moduleIndex++) {
+          for (const direction of ["L", "R"]) {
+            const next = applyMove({
+              positions: current,
+              moduleIndex,
+              direction,
+              leftRules,
+              minPosition,
+              maxPosition
+            });
+
+            if (!next) continue;
+
+            const nextKey = next.join(",");
+
+            if (visited.has(nextKey)) continue;
+
+            visited.add(nextKey);
+
+            parent.set(nextKey, {
+              previous: current.join(","),
+              move: {
+                module: moduleIndex + 1,
+                direction
+              }
+            });
+
+            if (nextKey === targetKey) {
+              return {
+                solved: true,
+                moves: reconstructMoves(parent, startKey, targetKey),
+                states: reconstructStates(parent, startKey, targetKey)
+              };
+            }
+
+            queue.push(next);
+          }
+        }
+      }
+
+      return {
+        solved: false,
+        moves: [],
+        states: []
+      };
+    }
+
+    function applyMove({
+      positions,
+      moduleIndex,
+      direction,
+      leftRules,
+      minPosition,
+      maxPosition
+    }) {
+      const next = [...positions];
+      const directionMultiplier = direction === "L" ? 1 : -1;
+      const leftEffect = leftRules[moduleIndex];
+
+      for (let index = 0; index < next.length; index++) {
+        const movement = leftEffect[index] * directionMultiplier;
+        next[index] += movement;
+
+        if (next[index] < minPosition || next[index] > maxPosition) {
+          return null;
+        }
+      }
+
+      return next;
+    }
+
+    function reconstructMoves(parent, startKey, targetKey) {
+      const moves = [];
+      let currentKey = targetKey;
+
+      while (currentKey !== startKey) {
+        const entry = parent.get(currentKey);
+        moves.unshift(entry.move);
+        currentKey = entry.previous;
+      }
+
+      return moves;
+    }
+
+    function reconstructStates(parent, startKey, targetKey) {
+      const states = [targetKey.split(",").map(Number)];
+      let currentKey = targetKey;
+
+      while (currentKey !== startKey) {
+        const entry = parent.get(currentKey);
+        currentKey = entry.previous;
+        states.unshift(currentKey.split(",").map(Number));
+      }
+
+      return states;
+    }
+
+
+    function compressConsecutiveMoves(moves) {
+      const compressed = [];
+
+      for (const move of moves) {
+        const last = compressed[compressed.length - 1];
+
+        if (
+          last &&
+          last.module === move.module &&
+          last.direction === move.direction
+        ) {
+          last.count++;
+        } else {
+          compressed.push({
+            module: move.module,
+            direction: move.direction,
+            count: 1
+          });
+        }
+      }
+
+      return compressed;
+    }
+
+    function renderSolution(solution) {
+      if (!solution.solved) {
+        result.innerHTML = `
+          <p class="status danger">
+            Keine Lösung gefunden. Mit diesen Startpositionen und Bewegungsregeln kann nicht jeder Pin auf Position 4 gebracht werden.
+          </p>
+        `;
+        return;
+      }
+
+      if (solution.moves.length === 0) {
+        result.innerHTML = `
+          <p class="status success">
+            Alle Pins stehen bereits auf Position 4. Es sind keine Bewegungen nötig.
+          </p>
+          ${renderStateTable(solution.states)}
+        `;
+        return;
+      }
+
+      const compressedMoves = compressConsecutiveMoves(solution.moves);
+
+      const moveItems = compressedMoves.map((move) => {
+        const directionText = move.direction === "L" ? "links" : "rechts";
+        const prefix = move.count > 1 ? `${move.count}× ` : "";
+        return `<li>${prefix}Platte ${move.module} nach ${directionText}</li>`;
+      }).join("");
+
+      const compressedInfo = compressedMoves.length === solution.moves.length
+        ? ""
+        : ` Zusammengefasst zu ${compressedMoves.length} Eintrag${compressedMoves.length === 1 ? "" : "en"}.`;
+
+      result.innerHTML = `
+        <p class="status success">
+          Lösung gefunden: ${solution.moves.length} Einzelschritt${solution.moves.length === 1 ? "" : "e"}.${compressedInfo}
+        </p>
+        <ol class="steps-list">${moveItems}</ol>
+        ${renderStateTable(solution.states)}
+      `;
+    }
+
+    function renderStateTable(states) {
+      const headerCells = Array.from({ length: moduleCount }, (_, index) => {
+        return `<th>Modul ${index + 1}</th>`;
+      }).join("");
+
+      const rows = states.map((state, index) => {
+        const cells = state.map(position => {
+          const className = position === TARGET_POSITION ? "target" : "";
+          return `<td class="${className}">${position}</td>`;
+        }).join("");
+
+        return `
+          <tr>
+            <td>${index === 0 ? "Start" : `Nach Schritt ${index}`}</td>
+            ${cells}
+          </tr>
+        `;
+      }).join("");
+
+      return `
+        <table class="state-table">
+          <thead>
+            <tr>
+              <th>Zustand</th>
+              ${headerCells}
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function renderResultInfo(message) {
+      result.innerHTML = `<p class="status">${escapeHtml(message)}</p>`;
+    }
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+
+    function runLogicSelfTest() {
+      const oneModuleLeftFrom1 = applyMove({
+        positions: [1],
+        moduleIndex: 0,
+        direction: "L",
+        leftRules: [[1]],
+        minPosition: MIN_POSITION,
+        maxPosition: MAX_POSITION
+      });
+
+      const oneModuleRightFrom1 = applyMove({
+        positions: [1],
+        moduleIndex: 0,
+        direction: "R",
+        leftRules: [[1]],
+        minPosition: MIN_POSITION,
+        maxPosition: MAX_POSITION
+      });
+
+      const oneModuleLeftFrom7 = applyMove({
+        positions: [7],
+        moduleIndex: 0,
+        direction: "L",
+        leftRules: [[1]],
+        minPosition: MIN_POSITION,
+        maxPosition: MAX_POSITION
+      });
+
+      const oneModuleRightFrom7 = applyMove({
+        positions: [7],
+        moduleIndex: 0,
+        direction: "R",
+        leftRules: [[1]],
+        minPosition: MIN_POSITION,
+        maxPosition: MAX_POSITION
+      });
+
+      console.log("Lockpicking Solver Selbsttest:", {
+        "1 nach links sollte 2 sein": oneModuleLeftFrom1,
+        "1 nach rechts sollte ungültig/null sein": oneModuleRightFrom1,
+        "7 nach links sollte ungültig/null sein": oneModuleLeftFrom7,
+        "7 nach rechts sollte 6 sein": oneModuleRightFrom7
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    init();
+    runLogicSelfTest();
+  </script>
+</body>
+</html>

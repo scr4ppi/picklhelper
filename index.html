@@ -593,6 +593,7 @@
         disc: "Platte",
         state_start: "Start",
         state_step: "Nach Schritt {n}",
+        loading: "Berechne Lösung... Bitte warten (kann bei komplexen Schlössern ein paar Sekunden dauern).",
         table_state: "Zustand"
       },
       en: {
@@ -638,7 +639,8 @@
         disc: "Disc",
         state_start: "Start",
         state_step: "After step {n}",
-        table_state: "State"
+        table_state: "State",
+        loading: "Calculating solution... Please wait (may take a few seconds for complex locks)."
       }
     };
 
@@ -875,15 +877,34 @@
     }
 
     function handleSolve() {
-      const solution = solveLock({
-        startPositions,
-        leftRules,
-        minPosition: MIN_POSITION,
-        maxPosition: MAX_POSITION,
-        targetPosition: TARGET_POSITION
-      });
+      // 1. Button blockieren, damit man nicht mehrmals klickt
+      solveBtn.disabled = true;
+      solveBtn.style.opacity = "0.5";
+      solveBtn.style.cursor = "wait";
+      
+      // 2. Lade-Text anzeigen
+      result.innerHTML = `<p class="status" style="color: var(--accent-2); font-weight: bold; font-size: 16px;">
+        ⏳ ${t('loading')}
+        
+      </p>`;
 
-      renderSolution(solution);
+      // 3. Wir zwingen den Browser 50ms zu warten, damit er den Text oben rendern kann, 
+      // bevor die schwere Berechnung den Browser blockiert.
+      setTimeout(() => {
+        const solution = solveLock({
+          startPositions,
+          leftRules,
+          minPosition: MIN_POSITION,
+          maxPosition: MAX_POSITION,
+          targetPosition: TARGET_POSITION
+        });
+
+        // 4. Ergebnis anzeigen und Button wieder normal machen
+        renderSolution(solution);
+        solveBtn.disabled = false;
+        solveBtn.style.opacity = "1";
+        solveBtn.style.cursor = "pointer";
+      }, 50);
     }
 
     function solveLock({ startPositions, leftRules, minPosition, maxPosition, targetPosition }) {

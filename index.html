@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lockpicking Solver</title>
+  <title>GOTHIC REMAKE Lock helper</title>
   <style>
     :root {
       --bg: #101010;
@@ -42,6 +42,7 @@
       padding: 42px 0 70px;
     }
 
+    /* SPRACH-SWITCHER */
     .lang-switcher {
       position: absolute;
       top: 20px;
@@ -389,9 +390,14 @@
       font-weight: 700;
     }
 
+    /* BILDER-ANPASSUNG: Kleiner und zentriert */
     .instruction-img, .pin-img {
-      max-width: 100%;
+      max-width: 450px; /* Maximale Breite reduziert */
+      width: 100%; /* Passt sich auf Handys automatisch an */
       height: auto;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
       border-radius: 12px;
       border: 1px solid var(--line);
       box-shadow: 0 4px 15px rgba(0,0,0,0.4);
@@ -461,14 +467,14 @@
   <main class="page">
     <header>
       <div class="eyebrow" data-i18n="eyebrow">Lockpicking Tool</div>
-      <h1 data-i18n="title">Lockpicking Solver</h1>
+      <h1 data-i18n="title">GOTHIC REMAKE Lock helper</h1>
       <p data-i18n="header_desc">
         Stelle ein, wie viele Module dein Schloss hat, wo die Pins am Anfang stehen
         und welche Scheiben sich gegenseitig bewegen. Ziel: Alle Pins müssen auf Position 4.
         Wichtig: Links erhöht die Positionsnummer bis 7, rechts senkt sie bis 1.
       </p>
       
-      <img src="assets/platten.webp" alt="Schlossplatten im Spiel" class="instruction-img" onerror="this.src='https://placehold.co/800x250/141414/c7924b?text=Bild+nicht+gefunden'">
+      <img src="assets/platten.webp" alt="Schlossplatten im Spiel" class="instruction-img" onerror="this.src='https://placehold.co/450x150/141414/c7924b?text=Bild+nicht+gefunden'">
     </header>
 
     <div class="layout">
@@ -495,7 +501,7 @@
               <button class="small-btn" type="button" id="setRandomBtn" data-i18n="btn_random">Zufällig</button>
             </div>
             
-            <img src="assets/Pins.webp" alt="Darstellung der Pins" class="pin-img" onerror="this.src='https://placehold.co/800x150/141414/c7924b?text=Bild+nicht+gefunden'">
+            <img src="assets/Pins.webp" alt="Darstellung der Pins" class="pin-img" onerror="this.src='https://placehold.co/450x100/141414/c7924b?text=Bild+nicht+gefunden'">
 
             <div id="pinInputs" class="pin-grid"></div>
           </div>
@@ -506,7 +512,7 @@
               <button class="small-btn" type="button" id="resetRulesBtn" data-i18n="btn_reset_rules">Regeln zurücksetzen</button>
             </div>
             <p class="hint" data-i18n="rules_hint">
-              Stelle für jede Platte ein, was mit den anderen Platten passiert, wenn du sie bewegst.
+              Stelle für jede Platte exakt ein, was mit den anderen Platten passiert, wenn du sie bewegst.
             </p>
             <div id="rules" class="rules"></div>
           </div>
@@ -552,7 +558,7 @@
     const translations = {
       de: {
         eyebrow: "Lockpicking Tool",
-        title: "Lockpicking Solver",
+        title: "GOTHIC REMAKE Lock helper",
         header_desc: "Stelle ein, wie viele Module dein Schloss hat, wo die Pins am Anfang stehen und welche Scheiben sich gegenseitig bewegen. Ziel: Alle Pins müssen auf Position 4. Wichtig: Links erhöht die Positionsnummer bis 7, rechts senkt sie bis 1.",
         config_title: "Schloss konfigurieren",
         config_desc: "Positionen laufen von 1 bis 7. Die Mitte ist Position 4. Nach links bewegt Richtung 7, nach rechts Richtung 1. Eine Bewegung außerhalb von 1–7 wird als ungültig behandelt.",
@@ -598,7 +604,7 @@
       },
       en: {
         eyebrow: "Lockpicking Tool",
-        title: "Lockpicking Solver",
+        title: "GOTHIC REMAKE Lock helper",
         header_desc: "Set how many modules your lock has, where the pins start, and which discs affect each other. Goal: All pins must be at position 4. Note: Left increases position to 7, right decreases to 1.",
         config_title: "Configure Lock",
         config_desc: "Positions range from 1 to 7. The center is position 4. Moving left goes towards 7, moving right goes towards 1. Moves outside 1–7 are invalid.",
@@ -811,7 +817,6 @@
       }
     }
 
-    // --- NEUE 100% SICHTBARE DROPDOWN-RENDER LOGIK ---
     function renderRules() {
       rulesContainer.innerHTML = "";
 
@@ -837,14 +842,12 @@
           const select = document.createElement("select");
 
           if (sourceIndex === targetIndex) {
-            // Die Scheibe selbst. Wird grau und unklickbar als Orientierung angezeigt.
             const option = document.createElement("option");
             option.value = 1;
             option.textContent = t('opt_self');
             select.appendChild(option);
             select.disabled = true;
           } else {
-            // Alle anderen Scheiben bekommen das echte Dropdown
             const options = [
               { value: 0, text: t('opt_no_move') },
               { value: 1, text: t('opt_left') },
@@ -858,7 +861,6 @@
               select.appendChild(option);
             }
 
-            // Fallback falls Matrix nicht initialisiert ist
             if (!leftRules[sourceIndex]) resetRules();
 
             select.value = String(leftRules[sourceIndex][targetIndex]);

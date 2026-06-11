@@ -372,7 +372,7 @@
     .highlight-step {
       color: #fff;
       font-weight: bold;
-      background: rgba(214, 106, 92, 0.4); /* Rötliche Markierung */
+      background: rgba(214, 106, 92, 0.4);
       border-left: 4px solid var(--danger);
     }
 
@@ -631,9 +631,9 @@
         res_already_solved: "Alle Pins stehen bereits auf Position 4. Es sind keine Bewegungen nötig.",
         res_found: "Lösung gefunden: {n} Einzelschritt(e).",
         res_compressed: " Zusammengefasst zu {n} Eintrag/Einträgen.",
-        btn_play: "Auto-Play (3s)",
+        btn_play: "Auto-Play (5s/8s)",
         btn_pause: "Pause",
-        hotkey_hint: "💡 Tipp: Klicke auf Play für einen automatischen 3-Sekunden-Timer oder drücke <b>Leertaste/Pfeil Rechts</b> zum manuellen Abhaken.",
+        hotkey_hint: "💡 Tipp: Klicke auf Play für einen automatischen Timer (5s bzw. 8s bei Mehrfach-Schritten) oder drücke <b>Leertaste/Pfeil Rechts</b> zum manuellen Abhaken.",
         move_left: "links",
         move_right: "rechts",
         disc: "Scheibe",
@@ -680,9 +680,9 @@
         res_already_solved: "All pins are already at position 4. No moves required.",
         res_found: "Solution found: {n} single step(s).",
         res_compressed: " Compressed into {n} entry/entries.",
-        btn_play: "Auto-Play (3s)",
+        btn_play: "Auto-Play (5s/8s)",
         btn_pause: "Pause",
-        hotkey_hint: "💡 Tip: Click Play to auto-advance every 3s, or press <b>Spacebar/Right Arrow</b> to manually track steps.",
+        hotkey_hint: "💡 Tip: Click Play to auto-advance every 5s/8s, or press <b>Spacebar/Right Arrow</b> to manually track steps.",
         move_left: "left",
         move_right: "right",
         disc: "Disc",
@@ -728,10 +728,10 @@
     let startPositions = [];
     let leftRules = [];
     
-    // Variablen für den Hotkey-Tracker & Auto-Play
+    // Variablen für den Hotkey-Tracker & dynamischen Auto-Play
     let currentStepIndex = -1;
     let solutionStepsElements = [];
-    let autoPlayInterval = null;
+    let autoPlayTimer = null;
     let isAutoPlaying = false;
 
     const moduleCountButtons = document.getElementById("moduleCountButtons");
@@ -776,15 +776,9 @@
             e.preventDefault();
             advanceStep();
             
-            // Wenn der Nutzer manuell drückt, während Auto-Play läuft -> Timer zurücksetzen, damit es nicht springt
+            // Wenn der Nutzer manuell drückt, während Auto-Play läuft -> Timer auf Basis des neuen Schritts starten
             if (isAutoPlaying) {
-                clearInterval(autoPlayInterval);
-                autoPlayInterval = setInterval(() => {
-                    advanceStep();
-                    if (currentStepIndex >= solutionStepsElements.length - 1) {
-                        stopAutoPlay();
-                    }
-                }, 3000);
+                scheduleNextStep();
             }
           }
         }
@@ -806,22 +800,48 @@
         const btn = document.getElementById('autoPlayBtn');
         if (btn) btn.innerHTML = "⏸ " + t('btn_pause');
         
-        clearInterval(autoPlayInterval);
-        autoPlayInterval = setInterval(() => {
-            advanceStep();
-            if (currentStepIndex >= solutionStepsElements.length - 1) {
-                stopAutoPlay();
-            }
-        }, 3000);
+        scheduleNextStep();
     }
 
     function stopAutoPlay() {
         isAutoPlaying = false;
-        clearInterval(autoPlayInterval);
+        clearTimeout(autoPlayTimer);
         const btn = document.getElementById('autoPlayBtn');
         if (btn) btn.innerHTML = "▶ " + t('btn_play');
     }
     
+    // Berechnet die korrekte Dauer je nachdem, ob es ein Einzel- oder Mehrfachschritt ist
+    function scheduleNextStep() {
+        clearTimeout(autoPlayTimer);
+        
+        if (!isAutoPlaying) return;
+        
+        if (currentStepIndex >= solutionStepsElements.length - 1) {
+            stopAutoPlay();
+            return;
+        }
+
+        // Ermittle, wie oft die aktuell markierte Aktion geklickt werden muss
+        let currentCount = 1;
+        if (currentStepIndex >= 0 && solutionStepsElements[currentStepIndex]) {
+            currentCount = parseInt(solutionStepsElements[currentStepIndex].getAttribute('data-count')) || 1;
+        }
+        
+        // 8 Sekunden für Mehrfach-Aktionen, ansonsten 5 Sekunden
+        let delay = (currentCount > 1) ? 8000 : 5000;
+
+        autoPlayTimer = setTimeout(() => {
+            advanceStep();
+            
+            // Wenn es noch weitere Schritte gibt, baue den Timer für den nächsten Schritt auf
+            if (currentStepIndex < solutionStepsElements.length - 1) {
+                scheduleNextStep();
+            } else {
+                stopAutoPlay();
+            }
+        }, delay);
+    }
+
     function advanceStep() {
       solutionStepsElements.forEach(el => el.classList.remove('highlight-step'));
       currentStepIndex++;
@@ -1167,7 +1187,8 @@
       const moveItems = compressedMoves.map((move) => {
         const directionText = move.direction === "L" ? t('move_left') : t('move_right');
         const prefix = move.count > 1 ? `${move.count}× ` : "";
-        return `<li>${prefix}${t('disc')} ${move.module} nach ${directionText}</li>`;
+        // data-count Attribute für den dynamischen Timer hinzugefügt
+        return `<li data-count="${move.count}">${prefix}${t('disc')} ${move.module} nach ${directionText}</li>`;
       }).join("");
 
       const compressedInfo = compressedMoves.length === solution.moves.length
@@ -1190,11 +1211,9 @@
       
       solutionStepsElements = document.querySelectorAll('#solutionList li');
       
-      // Button Click-Listener anbinden
       const playBtn = document.getElementById('autoPlayBtn');
       if (playBtn) playBtn.addEventListener('click', toggleAutoPlay);
       
-      // Markiere den ersten Schritt sofort (aber ohne Autoplay zu starten)
       if (solutionStepsElements.length > 0) {
         advanceStep();
       }

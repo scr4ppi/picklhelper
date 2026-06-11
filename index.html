@@ -136,14 +136,11 @@
       gap: 10px;
     }
 
-    button,
-    select {
+    button, select {
       font: inherit;
     }
 
-    .count-btn,
-    .action-btn,
-    .small-btn {
+    .count-btn, .action-btn, .small-btn {
       border: 1px solid var(--line);
       background: var(--card-2);
       color: var(--text);
@@ -158,8 +155,7 @@
       font-weight: 700;
     }
 
-    .count-btn:hover,
-    .small-btn:hover {
+    .count-btn:hover, .small-btn:hover {
       border-color: var(--accent);
       transform: translateY(-1px);
     }
@@ -172,7 +168,7 @@
 
     .pin-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 12px;
     }
 
@@ -181,13 +177,30 @@
       border: 1px solid var(--line);
       border-radius: 14px;
       padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
     .pin-box label {
       display: block;
       font-size: 13px;
       color: var(--muted);
-      margin-bottom: 8px;
+    }
+
+    /* VISUELLER STATUS-BALKEN */
+    .pin-visual-track {
+      height: 6px;
+      background: #141414;
+      border-radius: 3px;
+      position: relative;
+      margin: 4px 0;
+    }
+    .pin-visual-bar {
+      height: 100%;
+      border-radius: 3px;
+      width: 0%;
+      transition: width 0.23s ease, background-color 0.23s ease;
     }
 
     select {
@@ -317,8 +330,7 @@
       border-radius: 12px;
     }
 
-    .state-table th,
-    .state-table td {
+    .state-table th, .state-table td {
       border-bottom: 1px solid var(--line);
       padding: 10px;
       text-align: left;
@@ -339,22 +351,64 @@
       font-weight: 700;
     }
 
-    details {
-      background: rgba(0, 0, 0, 0.16);
+    /* BILDER STYLING */
+    .instruction-img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px 16px;
+      margin-top: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     }
 
-    summary {
-      cursor: pointer;
+    .pin-img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+
+    /* NEUER PAYPAL BEREICH */
+    .support-card {
+      border: 1px solid rgba(199, 146, 75, 0.3);
+      background: linear-gradient(180deg, rgba(199, 146, 75, 0.08), rgba(0,0,0,0.2)), var(--card);
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    .support-card h3 {
       color: var(--accent-2);
-      font-weight: 700;
+      font-size: 24px;
+      margin: 0 0 10px 0;
     }
 
-    details p {
+    .support-card p {
       color: var(--muted);
       line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto 25px auto;
+      font-size: 15px;
+    }
+
+    .paypal-btn-large {
+      display: inline-block;
+      background: #FFC439;
+      color: #003087;
+      font-weight: bold;
+      font-size: 18px;
+      padding: 14px 32px;
+      border-radius: 30px;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 15px rgba(255, 196, 57, 0.15);
+    }
+
+    .paypal-btn-large:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 196, 57, 0.3);
+      border-color: transparent;
     }
 
     @media (max-width: 720px) {
@@ -362,29 +416,26 @@
         width: min(100% - 20px, 1100px);
         padding-top: 28px;
       }
-
-      .card-body,
-      .card-header {
+      .card-body, .card-header {
         padding: 18px;
       }
-
       .section-title {
         align-items: flex-start;
         flex-direction: column;
       }
-
       .actions {
         flex-direction: column;
       }
-
       .action-btn {
         width: 100%;
       }
-
       .state-table {
         display: block;
         overflow-x: auto;
         white-space: nowrap;
+      }
+      .support-card h3 {
+        font-size: 20px;
       }
     }
   </style>
@@ -400,6 +451,11 @@
         und welche Scheiben sich gegenseitig bewegen. Ziel: Alle Pins müssen auf Position 4.
         Wichtig: Links erhöht die Positionsnummer bis 7, rechts senkt sie bis 1.
       </p>
+      
+      <!-- PLATZHALTER: BILD DER SCHLOSSPLATTEN -->
+      <!-- Ändere das src="" Attribut zu deinem Bildpfad -->
+      <img src="https://placehold.co/800x250/141414/c7924b?text=Dein+Bild:+Schlossplatten+(src='schlossplatten.jpg')" alt="Schlossplatten im Spiel" class="instruction-img" onerror="this.src='https://placehold.co/800x250/141414/c7924b?text=Bild+nicht+gefunden'">
+
     </header>
 
     <div class="layout">
@@ -425,6 +481,11 @@
               <h3>2. Startpositionen der Pins</h3>
               <button class="small-btn" type="button" id="setRandomBtn">Zufällig</button>
             </div>
+            
+            <!-- PLATZHALTER: BILD DER PINS -->
+            <!-- Ändere das src="" Attribut zu deinem Bildpfad -->
+            <img src="https://placehold.co/800x150/141414/c7924b?text=Dein+Bild:+Startposition+der+Pins+(src='pins.jpg')" alt="Darstellung der Pins" class="pin-img" onerror="this.src='https://placehold.co/800x150/141414/c7924b?text=Bild+nicht+gefunden'">
+
             <div id="pinInputs" class="pin-grid"></div>
           </div>
 
@@ -462,25 +523,20 @@
         </div>
       </section>
 
-      <section class="card">
-        <div class="card-header">
-          <h2>Hinweis zur Logik</h2>
-          <p>
-            Diese Datei ist komplett eigenständig. Du kannst sie als <strong>index.html</strong> speichern und direkt im Browser öffnen.
-          </p>
-        </div>
-
-        <div class="card-body">
-          <details>
-            <summary>Wie werden die Regeln interpretiert?</summary>
-            <p>
-              Beispiel: Bei „Scheibe 1 nach links“ stellst du ein, dass Scheibe 2 ebenfalls nach links geht
-              und Scheibe 3 nach rechts. Dann passiert beim Drücken von Scheibe 1 nach links genau das.
-              Drückst du Scheibe 1 nach rechts, wird alles umgekehrt.
-            </p>
-          </details>
-        </div>
+      <!-- SUPPORT BOX -->
+      <section class="card support-card">
+        <h3>Unterstütze mich dabei, dich zu unterstützen!</h3>
+        <p>
+          Dieses Tool ist ein privates Projekt – <strong>100% kostenlos und komplett werbefrei</strong>. 
+          Wenn dir der Solver gefällt, dir Zeit spart und vor allem Dietriche rettet, 
+          freue ich mich riesig über einen kleinen Beitrag für die nächste Tavernen-Runde!
+        </p>
+        <!-- HIER DEINEN PAYPAL LINK EINTRAGEN -->
+        <a class="paypal-btn-large" href="https://paypal.me/DEIN_NAME" target="_blank" rel="noopener noreferrer">
+          ☕ Bei PayPal unterstützen
+        </a>
       </section>
+
     </div>
   </main>
 
@@ -488,15 +544,6 @@
     const MIN_POSITION = 1;
     const MAX_POSITION = 7;
     const TARGET_POSITION = 4;
-
-    /*
-      Positionslogik:
-      - nach links  = +1 Richtung 7
-      - nach rechts = -1 Richtung 1
-      - 7 nach links ist ungültig
-      - 1 nach rechts ist ungültig
-      - wenn ein gekoppelter Pin über 1/7 hinausgehen würde, ist der ganze Zug ungültig
-    */
 
     let moduleCount = 4;
     let startPositions = [];
@@ -571,6 +618,22 @@
       }
     }
 
+    function updateVisualBar(index, val) {
+      const bar = document.getElementById(`bar_${index}`);
+      if (!bar) return;
+      
+      const percentage = ((val - 1) / (MAX_POSITION - 1)) * 100;
+      bar.style.width = `${percentage}%`;
+      
+      if (val === TARGET_POSITION) {
+        bar.style.backgroundColor = "var(--success)";
+      } else if (val === MIN_POSITION || val === MAX_POSITION) {
+        bar.style.backgroundColor = "var(--danger)";
+      } else {
+        bar.style.backgroundColor = "var(--accent)";
+      }
+    }
+
     function renderPinInputs() {
       pinInputs.innerHTML = "";
 
@@ -580,6 +643,13 @@
 
         const label = document.createElement("label");
         label.textContent = `Modul ${index + 1}`;
+
+        const track = document.createElement("div");
+        track.className = "pin-visual-track";
+        const bar = document.createElement("div");
+        bar.className = "pin-visual-bar";
+        bar.id = `bar_${index}`;
+        track.appendChild(bar);
 
         const select = document.createElement("select");
 
@@ -595,12 +665,17 @@
         select.value = String(startPositions[index]);
 
         select.addEventListener("change", () => {
-          startPositions[index] = Number(select.value);
+          const val = Number(select.value);
+          startPositions[index] = val;
+          updateVisualBar(index, val);
         });
 
         box.appendChild(label);
+        box.appendChild(track);
         box.appendChild(select);
         pinInputs.appendChild(box);
+        
+        updateVisualBar(index, startPositions[index]);
       }
     }
 
@@ -690,11 +765,7 @@
       const targetKey = target.join(",");
 
       if (startKey === targetKey) {
-        return {
-          solved: true,
-          moves: [],
-          states: [startPositions]
-        };
+        return { solved: true, moves: [], states: [startPositions] };
       }
 
       const queue = [startPositions];
@@ -728,10 +799,7 @@
 
             parent.set(nextKey, {
               previous: current.join(","),
-              move: {
-                module: moduleIndex + 1,
-                direction
-              }
+              move: { module: moduleIndex + 1, direction }
             });
 
             if (nextKey === targetKey) {
@@ -747,11 +815,7 @@
         }
       }
 
-      return {
-        solved: false,
-        moves: [],
-        states: []
-      };
+      return { solved: false, moves: [], states: [] };
     }
 
     function applyMove({
@@ -804,25 +868,16 @@
       return states;
     }
 
-
     function compressConsecutiveMoves(moves) {
       const compressed = [];
 
       for (const move of moves) {
         const last = compressed[compressed.length - 1];
 
-        if (
-          last &&
-          last.module === move.module &&
-          last.direction === move.direction
-        ) {
+        if (last && last.module === move.module && last.direction === move.direction) {
           last.count++;
         } else {
-          compressed.push({
-            module: move.module,
-            direction: move.direction,
-            count: 1
-          });
+          compressed.push({ module: move.module, direction: move.direction, count: 1 });
         }
       }
 
@@ -910,52 +965,6 @@
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-
-    function runLogicSelfTest() {
-      const oneModuleLeftFrom1 = applyMove({
-        positions: [1],
-        moduleIndex: 0,
-        direction: "L",
-        leftRules: [[1]],
-        minPosition: MIN_POSITION,
-        maxPosition: MAX_POSITION
-      });
-
-      const oneModuleRightFrom1 = applyMove({
-        positions: [1],
-        moduleIndex: 0,
-        direction: "R",
-        leftRules: [[1]],
-        minPosition: MIN_POSITION,
-        maxPosition: MAX_POSITION
-      });
-
-      const oneModuleLeftFrom7 = applyMove({
-        positions: [7],
-        moduleIndex: 0,
-        direction: "L",
-        leftRules: [[1]],
-        minPosition: MIN_POSITION,
-        maxPosition: MAX_POSITION
-      });
-
-      const oneModuleRightFrom7 = applyMove({
-        positions: [7],
-        moduleIndex: 0,
-        direction: "R",
-        leftRules: [[1]],
-        minPosition: MIN_POSITION,
-        maxPosition: MAX_POSITION
-      });
-
-      console.log("Lockpicking Solver Selbsttest:", {
-        "1 nach links sollte 2 sein": oneModuleLeftFrom1,
-        "1 nach rechts sollte ungültig/null sein": oneModuleRightFrom1,
-        "7 nach links sollte ungültig/null sein": oneModuleLeftFrom7,
-        "7 nach rechts sollte 6 sein": oneModuleRightFrom7
-      });
-    }
-
     function escapeHtml(value) {
       return String(value)
         .replaceAll("&", "&amp;")
@@ -966,7 +975,6 @@
     }
 
     init();
-    runLogicSelfTest();
   </script>
 </body>
 </html>

@@ -42,7 +42,6 @@
       padding: 42px 0 70px;
     }
 
-    /* SPRACH-SWITCHER */
     .lang-switcher {
       position: absolute;
       top: 20px;
@@ -221,6 +220,7 @@
       display: block;
       font-size: 13px;
       color: var(--muted);
+      font-weight: bold;
     }
 
     .pin-visual-track {
@@ -250,6 +250,13 @@
     select:focus {
       border-color: var(--accent);
     }
+    
+    select:disabled {
+      background: #222;
+      color: #888;
+      cursor: not-allowed;
+      border-color: #333;
+    }
 
     .rules {
       display: grid;
@@ -260,39 +267,36 @@
       background: rgba(0, 0, 0, 0.18);
       border: 1px solid var(--line);
       border-radius: 16px;
-      padding: 16px;
+      padding: 18px;
     }
 
     .rule-card h4 {
-      margin: 0 0 12px;
+      margin: 0 0 16px;
       font-size: 16px;
       color: var(--accent-2);
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
     }
 
     .rule-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
     }
 
     .effect {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 6px;
+      background: rgba(0,0,0,0.25);
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
     }
 
     .effect label {
       color: var(--muted);
       font-size: 13px;
-    }
-
-    .self-note {
-      background: rgba(199, 146, 75, 0.10);
-      border: 1px solid rgba(199, 146, 75, 0.35);
-      color: var(--accent-2);
-      border-radius: 10px;
-      padding: 10px;
-      font-size: 13px;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
     }
 
     .actions {
@@ -436,10 +440,7 @@
     }
 
     @media (max-width: 720px) {
-      .page {
-        width: min(100% - 20px, 1100px);
-        padding-top: 28px;
-      }
+      .page { width: min(100% - 20px, 1100px); padding-top: 28px; }
       .card-body, .card-header { padding: 18px; }
       .section-title { align-items: flex-start; flex-direction: column; }
       .actions { flex-direction: column; }
@@ -505,8 +506,7 @@
               <button class="small-btn" type="button" id="resetRulesBtn" data-i18n="btn_reset_rules">Regeln zurücksetzen</button>
             </div>
             <p class="hint" data-i18n="rules_hint">
-              Die Regel beschreibt immer: „Wenn ich diese Scheibe nach links bewege, was passiert mit den anderen Scheiben?“
-              Nach links bedeutet Richtung 7. Nach rechts bedeutet Richtung 1 und wird automatisch umgekehrt.
+              Stelle für jede Platte ein, was mit den anderen Platten passiert, wenn du sie bewegst.
             </p>
             <div id="rules" class="rules"></div>
           </div>
@@ -561,7 +561,7 @@
         btn_random: "Zufällig",
         step3: "3. Bewegungsregeln",
         btn_reset_rules: "Regeln zurücksetzen",
-        rules_hint: "Die Regel beschreibt immer: „Wenn ich diese Scheibe nach links bewege, was passiert mit den anderen Scheiben?“ Nach links bedeutet Richtung 7. Nach rechts bedeutet Richtung 1 und wird automatisch umgekehrt.",
+        rules_hint: "Stelle für jede Platte exakt ein, was mit den anderen Platten passiert, wenn du sie bewegst.",
         btn_solve: "Lösung berechnen",
         btn_reset_all: "Alles zurücksetzen",
         result_title: "Ergebnis",
@@ -573,27 +573,27 @@
         
         // Dynamische Texte
         msg_reset_all: "Alles wurde zurückgesetzt.",
-        msg_reset_rules: "Die Bewegungsregeln wurden zurückgesetzt.",
+        msg_reset_rules: "Die Bewegungsregeln wurden auf Standard zurückgesetzt.",
         msg_random_set: "Neue zufällige Startpositionen wurden gesetzt.",
         msg_module_set: "Schloss auf {n} Modul(e) gesetzt.",
         module_label: "Modul {n}",
         target_center: "Ziel/Mitte",
-        rule_title: "Wenn ich Scheibe {n} nach links bewege",
+        rule_title: "Wenn ich Scheibe {n} nach links bewege:",
         disc_label: "Scheibe {n}",
-        self_note: "bewegt sich selbst nach links / Richtung 7",
-        opt_no_move: "bewegt sich nicht",
-        opt_left: "bewegt sich nach links / Richtung 7",
-        opt_right: "bewegt sich nach rechts / Richtung 1",
+        opt_self: "nach links (selbst)",
+        opt_no_move: "gar nicht",
+        opt_left: "nach links",
+        opt_right: "nach rechts",
         res_no_sol: "Keine Lösung gefunden. Mit diesen Startpositionen und Bewegungsregeln kann nicht jeder Pin auf Position 4 gebracht werden.",
         res_already_solved: "Alle Pins stehen bereits auf Position 4. Es sind keine Bewegungen nötig.",
         res_found: "Lösung gefunden: {n} Einzelschritt(e).",
         res_compressed: " Zusammengefasst zu {n} Eintrag/Einträgen.",
         move_left: "links",
         move_right: "rechts",
-        disc: "Platte",
+        disc: "Scheibe",
         state_start: "Start",
         state_step: "Nach Schritt {n}",
-        loading: "Berechne Lösung... Bitte warten (kann bei komplexen Schlössern ein paar Sekunden dauern).",
+        loading: "Berechne Lösung... Bitte warten.",
         table_state: "Zustand"
       },
       en: {
@@ -607,7 +607,7 @@
         btn_random: "Randomize",
         step3: "3. Movement Rules",
         btn_reset_rules: "Reset Rules",
-        rules_hint: "The rule always describes: 'If I move this disc to the left, what happens to the other discs?' Left means towards 7. Right means towards 1 and is inverted automatically.",
+        rules_hint: "Set exactly what happens to the other discs when you move this specific disc.",
         btn_solve: "Calculate Solution",
         btn_reset_all: "Reset All",
         result_title: "Result",
@@ -619,17 +619,17 @@
 
         // Dynamische Texte
         msg_reset_all: "Everything has been reset.",
-        msg_reset_rules: "Movement rules have been reset.",
+        msg_reset_rules: "Movement rules have been reset to default.",
         msg_random_set: "New random starting positions have been set.",
         msg_module_set: "Lock set to {n} module(s).",
         module_label: "Module {n}",
         target_center: "Target/Center",
-        rule_title: "If I move disc {n} to the left",
+        rule_title: "If I move disc {n} to the left:",
         disc_label: "Disc {n}",
-        self_note: "moves itself to the left / towards 7",
-        opt_no_move: "does not move",
-        opt_left: "moves to the left / towards 7",
-        opt_right: "moves to the right / towards 1",
+        opt_self: "to the left (self)",
+        opt_no_move: "not at all",
+        opt_left: "to the left",
+        opt_right: "to the right",
         res_no_sol: "No solution found. With these starting positions and rules, it's impossible to get all pins to position 4.",
         res_already_solved: "All pins are already at position 4. No moves required.",
         res_found: "Solution found: {n} single step(s).",
@@ -640,7 +640,7 @@
         state_start: "Start",
         state_step: "After step {n}",
         table_state: "State",
-        loading: "Calculating solution... Please wait (may take a few seconds for complex locks)."
+        loading: "Calculating solution... Please wait."
       }
     };
 
@@ -655,22 +655,18 @@
       localStorage.setItem('lockpicker_lang', lang);
       document.documentElement.lang = lang;
       
-      // Buttons aktualisieren
       document.getElementById('btn-de').classList.toggle('active', lang === 'de');
       document.getElementById('btn-en').classList.toggle('active', lang === 'en');
 
-      // Statische Texte updaten
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         el.innerHTML = t(key); 
       });
 
-      // UI neu rendern, damit dynamische Texte in neuer Sprache erscheinen
       renderModuleCountButtons(true);
       renderPinInputs();
       renderRules();
       
-      // Falls es schon ein Ergebnis gab, auf den Standardtext zurücksetzen
       renderResultInfo(t('result_empty'));
     }
 
@@ -694,7 +690,7 @@
     const setRandomBtn = document.getElementById("setRandomBtn");
 
     function init() {
-      setLanguage(currentLang); // Setzt Sprache & lädt Start UI
+      setLanguage(currentLang);
       resetState();
       bindEvents();
     }
@@ -815,6 +811,7 @@
       }
     }
 
+    // --- NEUE 100% SICHTBARE DROPDOWN-RENDER LOGIK ---
     function renderRules() {
       rulesContainer.innerHTML = "";
 
@@ -835,16 +832,19 @@
 
           const label = document.createElement("label");
           label.textContent = t('disc_label').replace('{n}', targetIndex + 1);
+          wrapper.appendChild(label);
+
+          const select = document.createElement("select");
 
           if (sourceIndex === targetIndex) {
-            const note = document.createElement("div");
-            note.className = "self-note";
-            note.textContent = t('self_note');
-            wrapper.appendChild(label);
-            wrapper.appendChild(note);
+            // Die Scheibe selbst. Wird grau und unklickbar als Orientierung angezeigt.
+            const option = document.createElement("option");
+            option.value = 1;
+            option.textContent = t('opt_self');
+            select.appendChild(option);
+            select.disabled = true;
           } else {
-            const select = document.createElement("select");
-
+            // Alle anderen Scheiben bekommen das echte Dropdown
             const options = [
               { value: 0, text: t('opt_no_move') },
               { value: 1, text: t('opt_left') },
@@ -858,16 +858,17 @@
               select.appendChild(option);
             }
 
+            // Fallback falls Matrix nicht initialisiert ist
+            if (!leftRules[sourceIndex]) resetRules();
+
             select.value = String(leftRules[sourceIndex][targetIndex]);
 
             select.addEventListener("change", () => {
               leftRules[sourceIndex][targetIndex] = Number(select.value);
             });
-
-            wrapper.appendChild(label);
-            wrapper.appendChild(select);
           }
 
+          wrapper.appendChild(select);
           grid.appendChild(wrapper);
         }
 
@@ -877,30 +878,25 @@
     }
 
     function handleSolve() {
-      // 1. Button blockieren, damit man nicht mehrmals klickt
       solveBtn.disabled = true;
       solveBtn.style.opacity = "0.5";
       solveBtn.style.cursor = "wait";
       
-      // 2. Lade-Text anzeigen
       result.innerHTML = `<p class="status" style="color: var(--accent-2); font-weight: bold; font-size: 16px;">
         ⏳ ${t('loading')}
-        
       </p>`;
 
-      // 3. Wir zwingen den Browser 50ms zu warten, damit er den Text oben rendern kann, 
-      // bevor die schwere Berechnung den Browser blockiert.
       setTimeout(() => {
         const solution = solveLock({
           startPositions,
-          leftRules,
+          leftRules: leftRules,
           minPosition: MIN_POSITION,
           maxPosition: MAX_POSITION,
           targetPosition: TARGET_POSITION
         });
 
-        // 4. Ergebnis anzeigen und Button wieder normal machen
         renderSolution(solution);
+        
         solveBtn.disabled = false;
         solveBtn.style.opacity = "1";
         solveBtn.style.cursor = "pointer";
@@ -1028,9 +1024,7 @@
 
     function renderSolution(solution) {
       if (!solution.solved) {
-        result.innerHTML = `
-          <p class="status danger">${t('res_no_sol')}</p>
-        `;
+        result.innerHTML = `<p class="status danger">${t('res_no_sol')}</p>`;
         return;
       }
 

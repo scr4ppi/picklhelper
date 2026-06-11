@@ -354,10 +354,46 @@
       color: var(--danger);
     }
 
+    /* Schritt-Hervorhebung CSS */
     .steps-list {
       margin: 0;
       padding-left: 22px;
       line-height: 1.75;
+      margin-bottom: 15px;
+    }
+    
+    .steps-list li {
+      transition: background 0.3s, color 0.3s, padding 0.3s;
+      border-radius: 6px;
+      padding: 2px 8px;
+      margin-left: -8px;
+    }
+
+    .highlight-step {
+      color: #fff;
+      font-weight: bold;
+      background: rgba(214, 106, 92, 0.4); /* Rötliche Markierung */
+      border-left: 4px solid var(--danger);
+    }
+
+    .playback-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .hotkey-hint {
+      display: inline-block;
+      padding: 8px 12px;
+      background: rgba(124, 196, 127, 0.1);
+      border: 1px solid rgba(124, 196, 127, 0.3);
+      border-radius: 8px;
+      color: var(--success);
+      font-size: 13px;
+      margin: 0;
     }
 
     .state-table {
@@ -390,10 +426,10 @@
       font-weight: 700;
     }
 
-    /* BILDER-ANPASSUNG: Kleiner und zentriert */
+    /* BILDER-ANPASSUNG */
     .instruction-img, .pin-img {
-      max-width: 450px; /* Maximale Breite reduziert */
-      width: 100%; /* Passt sich auf Handys automatisch an */
+      max-width: 450px; 
+      width: 100%; 
       height: auto;
       display: block;
       margin-left: auto;
@@ -454,6 +490,8 @@
       .state-table { display: block; overflow-x: auto; white-space: nowrap; }
       .support-card h3 { font-size: 20px; }
       .lang-switcher { top: 10px; right: 10px; }
+      .playback-controls { flex-direction: column; align-items: stretch; }
+      .playback-controls button { width: 100%; }
     }
   </style>
 </head>
@@ -482,8 +520,7 @@
         <div class="card-header">
           <h2 data-i18n="config_title">Schloss konfigurieren</h2>
           <p data-i18n="config_desc">
-            Positionen laufen von 1 bis 7. Die Mitte ist Position 4.
-            Nach links bewegt Richtung 7, nach rechts Richtung 1. Eine Bewegung außerhalb von 1–7 wird als ungültig behandelt.
+            Positionen laufen von 1 bis 7 von vorne nach hinten durchgezählt.
           </p>
         </div>
 
@@ -512,7 +549,7 @@
               <button class="small-btn" type="button" id="resetRulesBtn" data-i18n="btn_reset_rules">Regeln zurücksetzen</button>
             </div>
             <p class="hint" data-i18n="rules_hint">
-              Stelle für jede Platte exakt ein, was mit den anderen Platten passiert, wenn du sie bewegst.
+              Stelle für jede Platte exakt ein, was mit den anderen Platten passiert, wenn du sie bewegst. Dabei ist immer ein Schritt nach links definiert.
             </p>
             <div id="rules" class="rules"></div>
           </div>
@@ -561,13 +598,13 @@
         title: "GOTHIC REMAKE Lock helper",
         header_desc: "Stelle ein, wie viele Module dein Schloss hat, wo die Pins am Anfang stehen und welche Scheiben sich gegenseitig bewegen. Ziel: Alle Pins müssen auf Position 4. Wichtig: Links erhöht die Positionsnummer bis 7, rechts senkt sie bis 1.",
         config_title: "Schloss konfigurieren",
-        config_desc: "Positionen laufen von 1 bis 7 von vorne nach hinten durchgezählt",
+        config_desc: "Positionen laufen von 1 bis 7 von vorne nach hinten durchgezählt.",
         step1: "1. Anzahl der Module",
         step2: "2. Startpositionen der Pins",
         btn_random: "Zufällig",
         step3: "3. Bewegungsregeln",
         btn_reset_rules: "Regeln zurücksetzen",
-        rules_hint: "Stelle für jede Platte exakt ein, was mit den anderen Platten passiert, wenn du sie bewegst. Dabei ist immer eine A schritt nach links definiert.",
+        rules_hint: "Stelle für jede Platte exakt ein, was mit den anderen Platten passiert, wenn du sie bewegst. Dabei ist immer ein Schritt nach links definiert.",
         btn_solve: "Lösung berechnen",
         btn_reset_all: "Alles zurücksetzen",
         result_title: "Ergebnis",
@@ -594,6 +631,9 @@
         res_already_solved: "Alle Pins stehen bereits auf Position 4. Es sind keine Bewegungen nötig.",
         res_found: "Lösung gefunden: {n} Einzelschritt(e).",
         res_compressed: " Zusammengefasst zu {n} Eintrag/Einträgen.",
+        btn_play: "Auto-Play (3s)",
+        btn_pause: "Pause",
+        hotkey_hint: "💡 Tipp: Klicke auf Play für einen automatischen 3-Sekunden-Timer oder drücke <b>Leertaste/Pfeil Rechts</b> zum manuellen Abhaken.",
         move_left: "links",
         move_right: "rechts",
         disc: "Scheibe",
@@ -605,15 +645,15 @@
       en: {
         eyebrow: "Lockpicking Tool",
         title: "GOTHIC REMAKE Lock helper",
-        header_desc: "Set how many modules your lock ha. It is 1 to max 7 counted from first row to last row. ",
+        header_desc: "Set how many modules your lock has, where the pins start, and which discs affect each other. Goal: All pins must be at position 4. Note: Left increases position to 7, right decreases to 1.",
         config_title: "Configure Lock",
-        config_desc: "Positions range from 1 to 7. The center is position 4. Moving left goes towards 7, moving right goes towards 1. Moves outside 1–7 are invalid.",
+        config_desc: "Positions range from 1 to max 7, counted from the first to the last row.",
         step1: "1. Number of Modules",
         step2: "2. Pin Starting Positions",
         btn_random: "Randomize",
         step3: "3. Movement Rules",
         btn_reset_rules: "Reset Rules",
-        rules_hint: "Set exactly what happens to the other discs when you move this specific disc.",
+        rules_hint: "Set exactly what happens to the other discs when you move this specific disc to the left.",
         btn_solve: "Calculate Solution",
         btn_reset_all: "Reset All",
         result_title: "Result",
@@ -640,6 +680,9 @@
         res_already_solved: "All pins are already at position 4. No moves required.",
         res_found: "Solution found: {n} single step(s).",
         res_compressed: " Compressed into {n} entry/entries.",
+        btn_play: "Auto-Play (3s)",
+        btn_pause: "Pause",
+        hotkey_hint: "💡 Tip: Click Play to auto-advance every 3s, or press <b>Spacebar/Right Arrow</b> to manually track steps.",
         move_left: "left",
         move_right: "right",
         disc: "Disc",
@@ -684,6 +727,12 @@
     let moduleCount = 4;
     let startPositions = [];
     let leftRules = [];
+    
+    // Variablen für den Hotkey-Tracker & Auto-Play
+    let currentStepIndex = -1;
+    let solutionStepsElements = [];
+    let autoPlayInterval = null;
+    let isAutoPlaying = false;
 
     const moduleCountButtons = document.getElementById("moduleCountButtons");
     const pinInputs = document.getElementById("pinInputs");
@@ -717,6 +766,74 @@
         renderPinInputs();
         renderResultInfo(t('msg_random_set'));
       });
+      
+      // HOTKEY LISTENER FÜR MANUELLES SCHRITT-MARKIEREN
+      window.addEventListener('keydown', (e) => {
+        if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        
+        if (e.code === 'Space' || e.code === 'ArrowRight') {
+          if (solutionStepsElements.length > 0) {
+            e.preventDefault();
+            advanceStep();
+            
+            // Wenn der Nutzer manuell drückt, während Auto-Play läuft -> Timer zurücksetzen, damit es nicht springt
+            if (isAutoPlaying) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = setInterval(() => {
+                    advanceStep();
+                    if (currentStepIndex >= solutionStepsElements.length - 1) {
+                        stopAutoPlay();
+                    }
+                }, 3000);
+            }
+          }
+        }
+      });
+    }
+
+    function toggleAutoPlay() {
+        if (isAutoPlaying) {
+            stopAutoPlay();
+        } else {
+            startAutoPlay();
+        }
+    }
+
+    function startAutoPlay() {
+        if (currentStepIndex >= solutionStepsElements.length - 1) return; // Schon am Ende
+        
+        isAutoPlaying = true;
+        const btn = document.getElementById('autoPlayBtn');
+        if (btn) btn.innerHTML = "⏸ " + t('btn_pause');
+        
+        clearInterval(autoPlayInterval);
+        autoPlayInterval = setInterval(() => {
+            advanceStep();
+            if (currentStepIndex >= solutionStepsElements.length - 1) {
+                stopAutoPlay();
+            }
+        }, 3000);
+    }
+
+    function stopAutoPlay() {
+        isAutoPlaying = false;
+        clearInterval(autoPlayInterval);
+        const btn = document.getElementById('autoPlayBtn');
+        if (btn) btn.innerHTML = "▶ " + t('btn_play');
+    }
+    
+    function advanceStep() {
+      solutionStepsElements.forEach(el => el.classList.remove('highlight-step'));
+      currentStepIndex++;
+      
+      if (currentStepIndex >= solutionStepsElements.length) {
+        stopAutoPlay();
+        currentStepIndex = solutionStepsElements.length - 1; // Bleib auf dem letzten Schritt
+      }
+      
+      if(solutionStepsElements[currentStepIndex]) {
+         solutionStepsElements[currentStepIndex].classList.add('highlight-step');
+      }
     }
 
     function resetState() {
@@ -725,6 +842,9 @@
       renderModuleCountButtons();
       renderPinInputs();
       renderRules();
+      stopAutoPlay();
+      currentStepIndex = -1;
+      solutionStepsElements = [];
     }
 
     function resetRules() {
@@ -1025,6 +1145,10 @@
     }
 
     function renderSolution(solution) {
+      stopAutoPlay();
+      currentStepIndex = -1;
+      solutionStepsElements = [];
+      
       if (!solution.solved) {
         result.innerHTML = `<p class="status danger">${t('res_no_sol')}</p>`;
         return;
@@ -1054,9 +1178,26 @@
         <p class="status success">
           ${t('res_found').replace('{n}', solution.moves.length)}${compressedInfo}
         </p>
-        <ol class="steps-list">${moveItems}</ol>
+        <ol id="solutionList" class="steps-list">${moveItems}</ol>
+        
+        <div class="playback-controls">
+          <button id="autoPlayBtn" class="action-btn primary" style="padding: 8px 16px; font-size: 14px;">▶ ${t('btn_play')}</button>
+          <span class="hotkey-hint">${t('hotkey_hint')}</span>
+        </div>
+        
         ${renderStateTable(solution.states)}
       `;
+      
+      solutionStepsElements = document.querySelectorAll('#solutionList li');
+      
+      // Button Click-Listener anbinden
+      const playBtn = document.getElementById('autoPlayBtn');
+      if (playBtn) playBtn.addEventListener('click', toggleAutoPlay);
+      
+      // Markiere den ersten Schritt sofort (aber ohne Autoplay zu starten)
+      if (solutionStepsElements.length > 0) {
+        advanceStep();
+      }
     }
 
     function renderStateTable(states) {
@@ -1094,6 +1235,9 @@
     }
 
     function renderResultInfo(message) {
+      stopAutoPlay();
+      currentStepIndex = -1;
+      solutionStepsElements = [];
       result.innerHTML = `<p class="status">${escapeHtml(message)}</p>`;
     }
 
